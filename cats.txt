@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adopted Pets Widget</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .pet-card {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+            padding: 15px;
+            max-width: 300px;
+            text-align: center;
+        }
+        .pet-card img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        .pet-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .pet-details {
+            font-size: 0.9em;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Adopted Pets</h1>
+    <div id="pets-container"></div>
+
+    <script>
+        const apiUrl = "https://petstablished.com/api/v2/public/pets?public_key=de0e54edfb40747120e2de56188830f1&search%5bstatus%5d=Adopted&pagination%5blimit%5d=10&pagination%5bpage%5d=1&sort%5border%5d=asc&sort%5bcolumn%5d=name";
+
+        async function fetchPets() {
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data && data.pets) {
+                    const sortedPets = data.pets.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+                    displayPets(sortedPets);
+                }
+            } catch (error) {
+                console.error("Error fetching pet data:", error);
+            }
+        }
+
+        function displayPets(pets) {
+            const container = document.getElementById("pets-container");
+            container.innerHTML = "";
+
+            pets.forEach(pet => {
+                const petCard = document.createElement("div");
+                petCard.className = "pet-card";
+
+                const petImage = pet.photo ? `<img src="${pet.photo}" alt="${pet.name}">` : "<div>No Image Available</div>";
+
+                petCard.innerHTML = `
+                    ${petImage}
+                    <div class="pet-name">${pet.name}</div>
+                    <div class="pet-details">
+                        <p><strong>Sex:</strong> ${pet.sex}</p>
+                        <p><strong>Age:</strong> ${pet.age}</p>
+                    </div>
+                `;
+
+                container.appendChild(petCard);
+            });
+        }
+
+        fetchPets();
+    </script>
+</body>
+</html>
